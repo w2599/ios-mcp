@@ -34,13 +34,13 @@
 			<key>label</key>
 			<string>HTTP 端口</string>
 			<key>footerText</key>
-			<string>默认端口为 8090。端口范围：1024-65535。服务运行时修改端口会自动切换。</string>
+			<string>默认端口为 2902。端口范围：1024-65535。服务运行时修改端口会自动切换。</string>
 		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSEditTextCell</string>
 			<key>default</key>
-			<integer>8090</integer>
+			<integer>2902</integer>
 			<key>defaults</key>
 			<string>com.witchan.ios-mcp.preferences</string>
 			<key>id</key>
@@ -52,7 +52,7 @@
 			<key>label</key>
 			<string>端口</string>
 			<key>placeholder</key>
-			<string>8090</string>
+			<string>2902</string>
 		</dict>
 		<dict>
 			<key>cell</key>

@@ -75,7 +75,7 @@ Package name:
 2. Open the following URL in a browser:
 
 ```text
-http://DEVICE_IP:8090/health
+http://DEVICE_IP:2902/health
 ```
 
 3. If you get the following response, the service is running correctly:

@@ -3,7 +3,7 @@
 #import <ifaddrs.h>
 #import <net/if.h>
 
-#define IOS_MCP_DEFAULT_PORT 8090
+#define IOS_MCP_DEFAULT_PORT 2902
 #define IOS_MCP_MIN_PORT 1024
 #define IOS_MCP_MAX_PORT 65535
 #define IOS_MCP_PREFERENCES_DOMAIN @"com.witchan.ios-mcp.preferences"
