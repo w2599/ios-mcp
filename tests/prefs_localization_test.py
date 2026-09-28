@@ -52,7 +52,7 @@ class PreferencesLocalizationTests(unittest.TestCase):
         subprocess.run(["xcrun", "clang", "-fobjc-arc", "-framework", "Foundation",
                         str(ROOT / "tests/prefs_localization_host.m"), "-o", str(cls.host)], check=True)
         cls.keys_file = work / "keys.json"
-        cls.keys_file.write_text(json.dumps(list(cls.tables["en"]) + ["iOS MCP", "8090", "UNKNOWN_KEY"]),
+        cls.keys_file.write_text(json.dumps(list(cls.tables["en"]) + ["iOS MCP", "2980", "UNKNOWN_KEY"]),
                                  encoding="utf-8")
 
     def resolve(self, preferences):
@@ -112,7 +112,7 @@ class PreferencesLocalizationTests(unittest.TestCase):
             with self.subTest(preferences=preferences):
                 resolved = self.resolve(preferences)
                 self.assertEqual({key: resolved[key] for key in self.tables[expected]}, self.tables[expected])
-                for literal in ("iOS MCP", "8090", "UNKNOWN_KEY"):
+                for literal in ("iOS MCP", "2980", "UNKNOWN_KEY"):
                     self.assertEqual(resolved[literal], literal)
 
     def test_missing_translation_falls_back_to_english(self):

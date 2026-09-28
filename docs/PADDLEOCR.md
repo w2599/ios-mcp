@@ -215,19 +215,19 @@ Device/package checks (use only on devices authorized for UI and fault tests):
 ```sh
 python3 tests/paddle_package_test.py --version 1.2.8
 # Or inspect only an available scheme: --arch arm / --arch arm64 / --arch arm64e
-python3 tests/install_test_package.py --url http://DEVICE:8090/mcp packages/MATCHING.deb
-python3 tests/mcp_ocr_engines_test.py --url http://DEVICE:8090/mcp --out engine-results.json
+python3 tests/install_test_package.py --url http://DEVICE:2980/mcp packages/MATCHING.deb
+python3 tests/mcp_ocr_engines_test.py --url http://DEVICE:2980/mcp --out engine-results.json
 # On an actual iOS 13 device, with a third-party page showing English text:
-python3 tests/ocr_ios13_device_test.py --url http://DEVICE:8090/mcp --out ios13-results.json
-python3 tests/paddle_lifecycle_device_test.py --url http://DEVICE:8090/mcp \
+python3 tests/ocr_ios13_device_test.py --url http://DEVICE:2980/mcp --out ios13-results.json
+python3 tests/paddle_lifecycle_device_test.py --url http://DEVICE:2980/mcp \
   --ssh root@DEVICE --resources RESOLVED_JAILBREAK_ROOT/usr/share/ios-mcp/paddleocr \
   --out lifecycle-results.json
 # Exercise omitted engine, including describe_screen's OCR cancellation path:
-python3 tests/paddle_lifecycle_device_test.py --url http://DEVICE:8090/mcp \
+python3 tests/paddle_lifecycle_device_test.py --url http://DEVICE:2980/mcp \
   --ssh root@DEVICE --resources RESOLVED_JAILBREAK_ROOT/usr/share/ios-mcp/paddleocr \
   --app-bundle-id THIRD_PARTY_APP_ID --omit-engine --fault-tool describe_screen \
   --out lifecycle-default-describe.json
-python3 tests/ocr_ui_device_test.py --url http://DEVICE:8090/mcp \
+python3 tests/ocr_ui_device_test.py --url http://DEVICE:2980/mcp \
   --host-ip DEVELOPER_MAC_LAN_IP --frida 127.0.0.1:FORWARDED_FRIDA_PORT --out ui-results
 ```
 

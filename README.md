@@ -74,7 +74,7 @@ iOS MCP 是一个运行在越狱 iPhone 上的 [MCP (Model Context Protocol)](ht
 2. 浏览器访问：
 
 ```text
-http://设备IP:8090/health
+http://设备IP:2980/health
 ```
 
 3. 返回以下内容表示服务启动正常：

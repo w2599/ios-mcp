@@ -52,7 +52,7 @@
 "当前状态：检测中..." = "Status: Checking...";
 "检测中..." = "Checking...";
 "HTTP 端口" = "HTTP Port";
-"默认端口为 8090。端口范围：1024-65535。服务运行时修改端口会自动切换。" = "Default: 8090. Valid range: 1024–65535. Changing the port while the service is running switches it automatically.";
+"默认端口为 2980。端口范围：1024-65535。服务运行时修改端口会自动切换。" = "Default: 2980. Valid range: 1024–65535. Changing the port while the service is running switches it automatically.";
 "端口" = "Port";
 "Debug 日志" = "Debug Logging";
 "开启后会把服务启动、HTTP 请求、MCP 工具调用、耗时和错误写入文件，便于排查问题。" = "Log service startup, HTTP requests, MCP tool calls, timing, and errors to help troubleshoot issues.";
