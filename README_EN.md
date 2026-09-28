@@ -12,7 +12,7 @@ iOS MCP is an [MCP (Model Context Protocol)](https://modelcontextprotocol.io) se
 | **Buttons** | `press_home` `press_power` `press_volume_up` `press_volume_down` `toggle_mute` `wake_and_home` | HID physical button simulation, lock/off-screen wake flow |
 | **Text Input** | `input_text` `type_text` `press_key` | Pasteboard fast input / HID character-by-character / special keys |
 | **Screenshot** | `screenshot` `get_screen_info` | Base64 JPEG screenshot, screen dimensions & orientation |
-| **App Management** | `launch_app` `kill_app` `list_apps` `list_running_apps` `get_frontmost_app` `get_app_info` `install_app` `uninstall_app` | Launch/kill apps, install/uninstall apps or DEB packages, query app bundle/container paths and entitlements |
+| **App Management** | `launch_app` `kill_app` `list_apps` `list_running_apps` `get_frontmost_app` `get_app_info` `install_deb` | Launch/kill apps, install DEB packages, query app bundle/container paths and entitlements |
 | **Accessibility / Elements** | `get_ui_elements` `get_element_at_point` `tap_element` `wait_for_element` `wait_for_disappear` `ocr_screen` `describe_screen` | UI element tree, element lookup by coordinates, tap elements by text/label, wait for elements to appear/disappear, on-screen OCR text recognition with coordinates, aggregated screen snapshot |
 | **Clipboard** | `get_clipboard` `set_clipboard` | Read/write clipboard |
 | **Filesystem** | `list_dir` `read_file` `write_file` | Directory listing, file read/write (text and binary) |
@@ -22,10 +22,10 @@ iOS MCP is an [MCP (Model Context Protocol)](https://modelcontextprotocol.io) se
 | **URL** | `open_url` | Open URLs or URL schemes |
 | **Shell** | `run_command` | Execute shell commands |
 
-**46** MCP tools covering the major iOS device automation and reverse-engineering scenarios.
+**45** MCP tools covering the major iOS device automation and reverse-engineering scenarios.
 
-`install_app` supports `.ipa`, `.tipa`, and `.deb` (case-insensitive extensions). `.tipa` uses the IPA install flow.
-For computer-local files, upload through `POST /upload_file` first, then pass the returned device path to `install_app`.
+`install_deb` only supports `.deb` (case-insensitive extension) and restarts SpringBoard after successful installation.
+For computer-local files, upload through `POST /upload_file` first, then pass the returned device path to `install_deb`.
 
 `ocr_screen` and `describe_screen(include_ocr=true)` accept an optional `engine`:
 omitted/`"paddleocr"` uses offline PaddleOCR with ONNX Runtime CPU;
@@ -132,4 +132,4 @@ If you use, modify, redistribute, or incorporate any substantial portion of the 
 
 This project is provided on an "AS IS" basis, without warranties or conditions of any kind. The author is not responsible for device malfunction, data loss, service interruption, account risk, system damage, security issues, commercial loss, or any other direct or indirect impact caused by using, modifying, redistributing, deploying, or running this project.
 
-Bundled third-party components, including AppSync Unified, appinst, ldid, OpenSSL, libplist, and libzip, remain under their own licenses. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Bundled third-party components, including PaddleOCR, ONNX Runtime, OpenCV, Clipper, and Eigen, remain under their own licenses. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

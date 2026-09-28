@@ -22,8 +22,6 @@
 + (instancetype)defaultWorkspace;
 - (NSArray<LSApplicationProxy *> *)allInstalledApplications;
 - (BOOL)openApplicationWithBundleID:(NSString *)bundleID;
-- (BOOL)installApplication:(NSURL *)appURL withOptions:(NSDictionary *)options error:(NSError **)error;
-- (BOOL)uninstallApplication:(NSString *)bundleIdentifier withOptions:(NSDictionary *)options;
 @end
 
 // ============================================================

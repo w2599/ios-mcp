@@ -23,9 +23,6 @@ extern char **environ;
 
 typedef enum {
     MCP_ALLOWED_COMMAND_NONE = 0,
-    MCP_ALLOWED_COMMAND_ROOTHELPER,
-    MCP_ALLOWED_COMMAND_APPINST,
-    MCP_ALLOWED_COMMAND_LDID,
     MCP_ALLOWED_COMMAND_CHMOD,
     MCP_ALLOWED_COMMAND_LAUNCHCTL,
     MCP_ALLOWED_COMMAND_ID,
@@ -35,9 +32,6 @@ typedef enum {
 static void print_usage(const char *program) {
     fprintf(stderr, "Usage: %s <command> [args...]\n", program);
     fprintf(stderr, "Allowed commands:\n");
-    fprintf(stderr, "  /usr/bin/mcp-roothelper <ipa>\n");
-    fprintf(stderr, "  /usr/bin/mcp-appinst <ipa>\n");
-    fprintf(stderr, "  /usr/bin/mcp-ldid [ldid args...]\n");
     fprintf(stderr, "  /bin/chmod 0644|0755 <app-container-path>...\n");
     fprintf(stderr, "  /bin/launchctl kickstart -k <approved-accessibility-service>\n");
     fprintf(stderr, "  /usr/bin/id\n");
@@ -455,9 +449,6 @@ static MCPAllowedCommand classify_allowed_command(const char *command_path) {
         const char *logical_path;
         MCPAllowedCommand command;
     } candidates[] = {
-        {"/usr/bin/mcp-roothelper", MCP_ALLOWED_COMMAND_ROOTHELPER},
-        {"/usr/bin/mcp-appinst", MCP_ALLOWED_COMMAND_APPINST},
-        {"/usr/bin/mcp-ldid", MCP_ALLOWED_COMMAND_LDID},
         {"/bin/chmod", MCP_ALLOWED_COMMAND_CHMOD},
         {"/usr/bin/chmod", MCP_ALLOWED_COMMAND_CHMOD},
         {"/bin/launchctl", MCP_ALLOWED_COMMAND_LAUNCHCTL},

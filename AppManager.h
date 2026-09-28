@@ -22,11 +22,8 @@
 /// Open a URL (supports URL schemes like http://, tel://, etc.)
 - (BOOL)openURL:(NSString *)urlString error:(NSString **)error;
 
-/// Install an IPA (.ipa/.tipa) or DEB package from the given path on device
-- (BOOL)installApp:(NSString *)packagePath error:(NSString **)error;
-
-/// Uninstall an app by bundle identifier or a DEB package by package identifier
-- (BOOL)uninstallApp:(NSString *)identifier error:(NSString **)error;
+/// Install a local DEB package and schedule a SpringBoard restart.
+- (BOOL)installDebPackage:(NSString *)debPath error:(NSString **)error;
 
 /// Detailed info for a single installed app: bundle/data/group container paths,
 /// executable path, version, entitlements, and signing identity. Returns nil with

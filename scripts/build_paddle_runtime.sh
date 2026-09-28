@@ -22,8 +22,9 @@ python3 "$ort_src/tools/ci_build/build.py" --config MinSizeRel --build_dir "$wor
   --disable_ml_ops --use_preinstalled_eigen --eigen_path "$work_dir/eigen-e7248b26a1ed53fa030c5c459f7ea095dfd276ac" \
   --cmake_extra_defines onnxruntime_BUILD_UNIT_TESTS=OFF \
   onnxruntime_USE_COREML=OFF onnxruntime_USE_XNNPACK=OFF onnxruntime_DISABLE_EXCEPTIONS=OFF \
-  CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
+  CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO CMAKE_POLICY_VERSION_MINIMUM=3.5
 cmake -S "$cv_src" -B "$work_dir/cv-$target" -G Ninja "${cv_args[@]}" \
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
   -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$out_dir/opencv" \
   -DBUILD_LIST=core,imgproc -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
   -DBUILD_EXAMPLES=OFF -DBUILD_opencv_apps=OFF -DWITH_OPENCL=OFF -DWITH_IPP=OFF \

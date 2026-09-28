@@ -29,6 +29,8 @@ def main():
         archive = subprocess.check_output(['ar','p',str(path),member])
         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
             files = {m.name.removeprefix('./'):tar.extractfile(m).read() for m in tar if m.isfile()}
+        removed_helpers = ('mcp-appsync', 'mcp-appinst', 'mcp-roothelper', 'mcp-ldid')
+        assert not any(any(part in name for part in removed_helpers) for name in files), 'Obsolete IPA helper in package'
         resource = prefix+'usr/share/ios-mcp/paddleocr/'
         hashes = json.loads(files[resource+'sha256.json'])
         for model in ['det.onnx','rec.onnx','dictionary.json']:

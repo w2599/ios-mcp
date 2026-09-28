@@ -12,7 +12,7 @@ iOS MCP 是一个运行在越狱 iPhone 上的 [MCP (Model Context Protocol)](ht
 | **硬件按键** | `press_home` `press_power` `press_volume_up` `press_volume_down` `toggle_mute` `wake_and_home` | HID 模拟物理按键，锁屏/熄屏唤醒 |
 | **文字输入** | `input_text` `type_text` `press_key` | 剪贴板快速输入 / HID 逐字模拟 / 特殊键 |
 | **截图** | `screenshot` `get_screen_info` | Base64 JPEG 截图、屏幕尺寸与方向 |
-| **App 管理** | `launch_app` `kill_app` `list_apps` `list_running_apps` `get_frontmost_app` `get_app_info` `install_app` `uninstall_app` | 启动/关闭 App，安装/卸载 App 或 DEB，查询 App 沙盒/容器路径与 entitlements |
+| **App 管理** | `launch_app` `kill_app` `list_apps` `list_running_apps` `get_frontmost_app` `get_app_info` `install_deb` | 启动/关闭 App，安装 DEB，查询 App 沙盒/容器路径与 entitlements |
 | **无障碍 / 元素操作** | `get_ui_elements` `get_element_at_point` `tap_element` `wait_for_element` `wait_for_disappear` `ocr_screen` `describe_screen` | 获取 UI 节点树、坐标元素查询，按文本/标签点击元素、等待元素出现或消失，屏幕 OCR 文字识别与定位、聚合屏幕快照 |
 | **剪贴板** | `get_clipboard` `set_clipboard` | 读写剪贴板内容 |
 | **文件系统** | `list_dir` `read_file` `write_file` | 目录列举、文件读写（支持文本与二进制） |
@@ -22,10 +22,10 @@ iOS MCP 是一个运行在越狱 iPhone 上的 [MCP (Model Context Protocol)](ht
 | **URL** | `open_url` | 打开链接或 URL Scheme |
 | **Shell** | `run_command` | 执行 Shell 命令 |
 
-共 **46** 个 MCP 工具，覆盖 iOS 设备自动化与逆向调试的主要场景。
+共 **45** 个 MCP 工具，覆盖 iOS 设备自动化与逆向调试的主要场景。
 
-`install_app` 支持 `.ipa`、`.tipa` 和 `.deb`（扩展名不区分大小写）。`.tipa` 按 IPA 安装；
-电脑上的文件需先通过 `POST /upload_file` 上传，再将返回的设备路径传给 `install_app`。
+`install_deb` 仅支持 `.deb`（扩展名不区分大小写），安装成功后重启 SpringBoard。
+电脑上的文件需先通过 `POST /upload_file` 上传，再将返回的设备路径传给 `install_deb`。
 
 `ocr_screen` 与 `describe_screen(include_ocr=true)` 支持可选的 `engine` 参数：
 省略或传 `"paddleocr"` 使用离线 PaddleOCR + ONNX Runtime CPU；传 `"vision"` 使用 Apple Vision。
@@ -131,4 +131,4 @@ http://设备IP:8090/health
 
 本项目按 “AS IS” 方式提供，不提供任何明示或暗示担保。因使用、修改、分发、部署或运行本项目导致的设备异常、数据丢失、服务中断、账号风险、系统损坏、安全问题、商业损失或其他直接/间接影响，作者不承担责任。
 
-项目中包含的第三方组件（如 AppSync Unified、appinst、ldid、OpenSSL、libplist、libzip）遵循各自的开源协议，详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+项目中包含的第三方组件（如 PaddleOCR、ONNX Runtime、OpenCV、Clipper、Eigen）遵循各自的开源协议，详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

@@ -77,10 +77,6 @@ build_subprojects() {
   if [[ -n "$BUILD_SCHEME" ]]; then
     scheme_env=(THEOS_PACKAGE_SCHEME="$BUILD_SCHEME")
   fi
-  (cd AppSync && make "${scheme_env[@]}" clean && make "${scheme_env[@]}")
-  (cd AppSync/appinst && make "${scheme_env[@]}" clean && make "${scheme_env[@]}")
-  (cd mcp-roothelper && make "${scheme_env[@]}" clean && make "${scheme_env[@]}")
-  (cd mcp-ldid && make "${scheme_env[@]}" clean && make "${scheme_env[@]}")
   (cd mcp-root && make "${scheme_env[@]}" clean && make "${scheme_env[@]}")
   (cd mcp-logreader && make "${scheme_env[@]}" clean && make "${scheme_env[@]}")
   if [[ ! -f third_party/paddleocr/runtime/ios/lib/libonnxruntime.a ]]; then

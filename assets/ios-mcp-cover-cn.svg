@@ -133,7 +133,7 @@
   <rect x="792" y="365" width="170" height="50" rx="16" fill="#0E1C2B" stroke="#1D4058"/>
   <text x="814" y="396" fill="#C8DCEC" font-size="20" font-family="SF Pro Text, Helvetica, Arial, sans-serif" font-weight="600">get_ui_elements()</text>
   <rect x="866" y="439" width="175" height="50" rx="16" fill="#0E1C2B" stroke="#1D4058"/>
-  <text x="888" y="470" fill="#C8DCEC" font-size="20" font-family="SF Pro Text, Helvetica, Arial, sans-serif" font-weight="600">install_app()</text>
+  <text x="888" y="470" fill="#C8DCEC" font-size="20" font-family="SF Pro Text, Helvetica, Arial, sans-serif" font-weight="600">install_deb()</text>
 
   <g opacity="0.72">
     <path d="M807 241C775 280 760 319 790 377" stroke="#1AE3C2" stroke-width="2"/>

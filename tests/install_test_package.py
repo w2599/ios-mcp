@@ -23,10 +23,10 @@ def main():
     request = urllib.request.Request(base + '/upload_file', data=path.read_bytes(),
                                     headers={'X-Filename': path.name})
     uploaded = json.load(urllib.request.urlopen(request, timeout=60))
-    response = c.call('install_app', {'path': uploaded['path']})
+    response = c.call('install_deb', {'path': uploaded['path']})
     assert 'error' not in response and not response.get('result', {}).get('isError'), response
     print('Install response:', response, flush=True)
-    # install_app replies BEFORE its delayed respring. The old process may still
+    # install_deb replies BEFORE its delayed respring. The old process may still
     # return /health and tools/list briefly, especially for same-version test builds.
     time.sleep(8)
     for _ in range(40):

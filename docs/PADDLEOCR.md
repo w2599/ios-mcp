@@ -127,10 +127,7 @@ The runtime's C++ filesystem imports require iOS 13.0 according to
 [Apple's C++ support table](https://developer.apple.com/xcode/cpp/). Import listings
 are retained in the audit report; they have not been resolved against an actual
 iOS 13 dyld shared cache; actual exercised OCR paths now also have iOS 13.5.1
-device evidence. The existing, non-OCR `mcp-ldid` helper still links a
-prebuilt libcrypto with iOS 15 object-version warnings in the rootful build.
-Neither SpringBoard nor the OCR worker links that helper/libcrypto; this work does
-not certify that unrelated helper's iOS 13 compatibility or rewrite its metadata.
+device evidence.
 
 Installed locations (resolved through the existing jailbreak path helper):
 
@@ -146,7 +143,7 @@ device. No library-validation entitlement or jailbreak security setting is chang
 A missing/bad worker or model cannot prevent SpringBoard/iOS MCP/Vision from loading.
 An upgrade removes the formerly packaged ORT dylib through dpkg's normal ownership
 tracking; no broad filesystem cleanup is performed. Install the matching deb
-through the existing `upload_file` + `install_app` workflow or `dpkg -i`; installation
+through the existing `upload_file` + `install_deb` workflow or `dpkg -i`; installation
 restarts SpringBoard as before.
 
 ## Pipeline and coordinates

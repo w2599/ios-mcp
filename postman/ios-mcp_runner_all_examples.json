@@ -155,13 +155,8 @@
     "notes": "State-changing"
   },
   {
-    "tool_name": "install_app",
-    "tool_args_json": "{\"path\":\"/tmp/app.ipa\"}",
-    "notes": "Requires an IPA or DEB on the device; use /upload_file first for computer-local files. DEB installs restart SpringBoard after dpkg succeeds"
-  },
-  {
-    "tool_name": "uninstall_app",
-    "tool_args_json": "{\"bundle_id\":\"com.apple.Preferences\"}",
-    "notes": "Disruptive. Use bundle_id for apps or package_id for DEB packages"
+    "tool_name": "install_deb",
+    "tool_args_json": "{\"path\":\"/tmp/package.deb\"}",
+    "notes": "Requires a DEB on the device; use /upload_file first for computer-local files. DEB installs restart SpringBoard after dpkg succeeds"
   }
 ]

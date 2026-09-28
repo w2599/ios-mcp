@@ -544,7 +544,7 @@
                 "upload_file"
               ]
             },
-            "description": "Upload any local file to the device as raw bytes. For IPA or DEB install, set sample_upload_file_path and sample_upload_filename, send this request, then pass uploaded_file_path to install_app. The response contains only path, filename, and size."
+            "description": "Upload any local file to the device as raw bytes. For DEB install, set sample_upload_file_path and sample_upload_filename, send this request, then pass uploaded_file_path to install_deb. The response contains only path, filename, and size."
           }
         }
       ]
@@ -708,7 +708,7 @@
           }
         },
         {
-          "name": "install_app",
+          "name": "install_deb",
           "request": {
             "method": "POST",
             "header": [
@@ -719,7 +719,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"{{current_request_id}}\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"install_app\",\n    \"arguments\": {\n      \"path\": \"{{uploaded_file_path}}\"\n    }\n  }\n}",
+              "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"{{current_request_id}}\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"install_deb\",\n    \"arguments\": {\n      \"path\": \"{{uploaded_file_path}}\"\n    }\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -735,38 +735,7 @@
                 "mcp"
               ]
             },
-            "description": "Install an IPA or DEB already on the device. For a computer-local file, first send File Transfer / upload_file and then use the uploaded_file_path environment value here. DEB installs restart SpringBoard after dpkg succeeds."
-          }
-        },
-        {
-          "name": "uninstall_app",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"{{current_request_id}}\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"uninstall_app\",\n    \"arguments\": {\n      \"bundle_id\": \"{{sample_bundle_id}}\"\n    }\n  }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/mcp",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "mcp"
-              ]
-            },
-            "description": "Uninstall an app by bundle_id or a DEB package by package_id. DEB removals restart SpringBoard after dpkg succeeds. Disruptive."
+            "description": "Install a DEB already on the device. For a computer-local file, first send File Transfer / upload_file and then use the uploaded_file_path environment value here. DEB installs restart SpringBoard after dpkg succeeds."
           }
         }
       ]

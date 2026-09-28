@@ -1,156 +1,114 @@
 #!/usr/bin/env python3
-"""Compile the actual AppManager install method on macOS with installer doubles.
+"""Run the production DEB installer on macOS with process/staging doubles.
 
-No device/app is installed. Tests extension routing and LS fallback options in
-both normal and MCP_ROOTHIDE builds, not ZIP parsing or private iOS API behavior.
+No device is changed. Covers validation, dpkg failures, cleanup and restart timing.
 """
 import subprocess
 import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-
 PREFIX = r'''
 #import <Foundation/Foundation.h>
-#import <objc/runtime.h>
 #include <assert.h>
-#include <sys/stat.h>
 #define APP_LOG(...) do {} while (0)
-static NSString *root, *expectedPath;
-static NSSet *helpers;
-static BOOL helperOK, workspaceOK;
-static NSUInteger calls, workspaceCalls, debCalls;
-static NSMutableArray *executed;
-NSString *MCPResolvedJailbreakPath(NSString *path) {
-    NSString *name = path.lastPathComponent;
-    return [root stringByAppendingPathComponent:[helpers containsObject:name] ? name : [@"missing-" stringByAppendingString:name]];
+static NSUInteger stageCalls, dpkgCalls, cleanupCalls, restartCalls;
+static BOOL stageOK, processOK, restartOK;
+static int processExit;
+static NSString *expectedPath;
+static NSString *MCPStageDebForDpkg(NSString *path, NSString **staged, NSString **error) {
+    stageCalls++;
+    assert([path isEqual:expectedPath]);
+    if (!stageOK) { *error = @"stage failed"; return nil; }
+    *staged = @"/tmp/staged.deb";
+    return *staged;
 }
-NSDictionary *MCPJailbreakEnvironment(void) { return @{}; }
-BOOL MCPRunProcess(NSString *path, NSArray *args, NSDictionary *env, NSTimeInterval timeout,
-                   NSUInteger maxOutput, NSString **output, int *status, NSString **error) {
-    calls++;
-    assert([args.lastObject isEqual:expectedPath]);
-    [executed addObject:path.lastPathComponent];
-    if (output) *output = @"fixture result";
-    if (status) *status = helperOK ? 0 : 1;
-    return YES;
+static BOOL MCPRunDpkgWithPrivileges(NSArray *args, NSTimeInterval timeout,
+                                    NSUInteger limit, NSString **output, int *code, NSString **error) {
+    dpkgCalls++;
+    assert(([args isEqual:@[@"-i", @"/tmp/staged.deb"]]));
+    assert(timeout == 180 && limit == 512 * 1024);
+    *output = @"fixture dpkg output";
+    *code = processExit;
+    return processOK;
 }
-@interface MCPTestWorkspace : NSObject
-+ (instancetype)defaultWorkspace;
-- (BOOL)installApplication:(NSURL *)url withOptions:(NSDictionary *)options error:(NSError **)error;
-@end
-@implementation MCPTestWorkspace
-+ (instancetype)defaultWorkspace { return [self new]; }
-- (BOOL)installApplication:(NSURL *)url withOptions:(NSDictionary *)options error:(NSError **)error {
-    workspaceCalls++;
-    assert([url.path isEqual:expectedPath]);
-    assert(options.count == 0 || [options[@"PackageType"] isEqual:@"Customer"]);
-    return workspaceOK;
+static void MCPRemoveShellPath(NSString *path) {
+    assert([path isEqual:@"/tmp/staged.deb"]);
+    cleanupCalls++;
 }
-@end
-static Class MCPTestGetClass(const char *name) {
-    assert(strcmp(name, "LSApplicationWorkspace") == 0);
-    return MCPTestWorkspace.class;
+static BOOL MCPScheduleSpringBoardRestart(NSString **error) {
+    assert(cleanupCalls == 1);
+    restartCalls++;
+    if (!restartOK) *error = @"restart failed";
+    return restartOK;
 }
-// Route only the production method's class lookup to a uniquely named double;
-// never replace/collide with macOS's actual LSApplicationWorkspace class.
-#define objc_getClass MCPTestGetClass
 @interface AppManager : NSObject
-- (BOOL)installApp:(NSString *)path error:(NSString **)error;
 - (BOOL)installDebPackage:(NSString *)path error:(NSString **)error;
-- (NSString *)bundleIdFromIPA:(NSString *)path;
-- (NSString *)bundleIdFromAppInstOutput:(NSString *)output;
-- (BOOL)retryFakesignInstalledAppForBundleId:(NSString *)bundleId installedAfter:(NSDate *)date;
 @end
 @implementation AppManager
-- (BOOL)installDebPackage:(NSString *)path error:(NSString **)error { debCalls++; return YES; }
-- (NSString *)bundleIdFromIPA:(NSString *)path { return @"com.example.fixture"; }
-- (NSString *)bundleIdFromAppInstOutput:(NSString *)output { return @"com.example.fixture"; }
-- (BOOL)retryFakesignInstalledAppForBundleId:(NSString *)bundleId installedAfter:(NSDate *)date { return YES; }
 '''
-
 SUFFIX = r'''
 @end
-static void reset(void) { calls = workspaceCalls = debCalls = 0; executed = [NSMutableArray array]; }
+static void reset(void) {
+    stageCalls = dpkgCalls = cleanupCalls = restartCalls = 0;
+    stageOK = processOK = restartOK = YES; processExit = 0;
+}
 int main(int argc, const char **argv) {
     @autoreleasepool {
-        root = @(argv[1]);
+        NSString *root = @(argv[1]);
         NSFileManager *fm = NSFileManager.defaultManager;
-        for (NSString *name in @[@"mcp-root", @"mcp-roothelper", @"mcp-appinst"]) {
+        AppManager *manager = [AppManager new];
+        for (NSString *name in @[@"app.ipa", @"app.IPA", @"app.tipa", @"app.TIPA", @"app.zip", @"app.deb.zip", @"noextension"]) {
+            reset();
             NSString *path = [root stringByAppendingPathComponent:name];
             assert([fm createFileAtPath:path contents:[NSData data] attributes:nil]);
-            assert(chmod(path.fileSystemRepresentation, 0755) == 0);
-        }
-        AppManager *manager = [AppManager new];
-        NSUInteger checked = 0;
-        for (NSString *ext in @[@"ipa", @"IPA", @"tipa", @"TIPA", @"TiPa"]) {
-            expectedPath = [root stringByAppendingPathComponent:[@"test archive." stringByAppendingString:ext]];
-            assert([fm createFileAtPath:expectedPath contents:[NSData data] attributes:nil]);
-            // Missing helpers, successful CLI, and failed CLI -> LS fallback.
-            for (NSUInteger mode = 0; mode < 3; mode++) {
-                reset();
-                helpers = mode ? [NSSet setWithObject:@"mcp-appinst"] : [NSSet set];
-                helperOK = mode == 1; workspaceOK = YES;
-                NSString *error = nil;
-                assert([manager installApp:expectedPath error:&error]);
-                assert(!debCalls && workspaceCalls == (mode == 1 ? 0 : 1));
-                assert(calls == (mode ? 1 : 0)); checked++;
-            }
-#ifdef MCP_ROOTHIDE
-            // RootHide delegation keeps the original .tipa path.
-            for (NSUInteger variant = 0; variant < 2; variant++) {
-                BOOL viaRoot = variant != 0;
-                reset(); helperOK = YES;
-                helpers = viaRoot ? [NSSet setWithArray:@[@"mcp-root", @"mcp-roothelper"]] : [NSSet setWithObject:@"mcp-roothelper"];
-                assert([manager installApp:expectedPath error:nil]);
-                assert(calls == 1 && workspaceCalls == 0 && debCalls == 0);
-                assert([executed[0] isEqual:viaRoot ? @"mcp-root" : @"mcp-roothelper"]); checked++;
-            }
-#endif
-            reset(); helpers = [NSSet set]; workspaceOK = NO;
-            NSString *failure = nil;
-            assert(![manager installApp:expectedPath error:&failure]);
-            assert(failure.length > 0 && workspaceCalls == 2); checked++;
-        }
-        helpers = [NSSet set]; workspaceOK = YES;
-        for (NSString *name in @[@"app.zip", @"app.tipa.zip", @"app.ipa.tmp", @"noextension"]) {
-            reset(); expectedPath = [root stringByAppendingPathComponent:name];
-            assert([fm createFileAtPath:expectedPath contents:[NSData data] attributes:nil]);
             NSString *error = nil;
-            assert(![manager installApp:expectedPath error:&error]);
-            assert([error containsString:@"expected .ipa, .tipa or .deb"]);
-            assert(!calls && !workspaceCalls && !debCalls); checked++;
+            assert(![manager installDebPackage:path error:&error] && error.length);
+            assert(!stageCalls && !dpkgCalls && !restartCalls);
         }
-        for (NSString *name in @[@"package.deb", @"package.DEB"]) {
-            reset(); expectedPath = [root stringByAppendingPathComponent:name];
+        for (NSString *path in @[@"", @"relative.deb", [root stringByAppendingPathComponent:@"missing.deb"]]) {
+            reset(); NSString *error = nil;
+            assert(![manager installDebPackage:path error:&error] && error.length);
+            assert(!stageCalls && !dpkgCalls && !restartCalls);
+        }
+        NSString *directory = [root stringByAppendingPathComponent:@"directory.deb"];
+        assert([fm createDirectoryAtPath:directory withIntermediateDirectories:NO attributes:nil error:nil]);
+        reset(); assert(![manager installDebPackage:directory error:nil] && !stageCalls);
+        for (NSString *name in @[@"package.deb", @"package.DEB", @"space quote ' package.DeB"]) {
+            expectedPath = [root stringByAppendingPathComponent:name];
             assert([fm createFileAtPath:expectedPath contents:[NSData data] attributes:nil]);
-            assert([manager installApp:expectedPath error:nil]);
-            assert(debCalls == 1 && !calls && !workspaceCalls); checked++;
+            for (NSUInteger mode = 0; mode < 5; mode++) {
+                reset();
+                if (mode == 1) stageOK = NO;
+                if (mode == 2) processOK = NO;
+                if (mode == 3) processExit = 1;
+                if (mode == 4) restartOK = NO;
+                NSString *error = nil;
+                assert([manager installDebPackage:expectedPath error:&error] == (mode == 0));
+                assert(stageCalls == 1);
+                assert(dpkgCalls == (mode == 1 ? 0 : 1));
+                assert(cleanupCalls == dpkgCalls);
+                assert(restartCalls == (mode == 0 || mode == 4 ? 1 : 0));
+                if (mode) assert(error.length);
+            }
         }
-        reset(); assert(![manager installApp:@"" error:nil]); checked++;
-        assert(![manager installApp:[root stringByAppendingPathComponent:@"missing.tipa"] error:nil]); checked++;
-        assert(!calls && !workspaceCalls && !debCalls);
-        printf("PASS %lu install routing checks (installer doubles)\n", (unsigned long)checked);
+        puts("PASS DEB validation, dpkg failures, staging cleanup and restart ordering");
     }
 }
 '''
 
 def main():
     source = (ROOT / 'AppManager.m').read_text()
-    begin = source.index('- (BOOL)installApp:')
-    end = source.index('\n- (NSString *)bundleIdFromIPA:', begin)
-    method = source[begin:end]
-    with tempfile.TemporaryDirectory(prefix='ios-mcp-install-routing-') as tmp:
+    begin = source.index('- (BOOL)installDebPackage:')
+    end = source.index('\n- (NSDictionary *)appInfoForBundleId:', begin)
+    with tempfile.TemporaryDirectory(prefix='ios-mcp-deb-install-') as tmp:
         work = Path(tmp)
         harness = work / 'test.m'
-        harness.write_text(PREFIX + method + SUFFIX)
-        for scheme, defines in [('normal', []), ('roothide', ['-DMCP_ROOTHIDE=1'])]:
-            binary = work / ('test-' + scheme)
-            subprocess.run(['xcrun', 'clang', '-fobjc-arc', '-fblocks', '-Wall', '-Werror',
-                            *defines, '-framework', 'Foundation', str(harness), '-o', str(binary)], check=True)
-            fixture = work / scheme
-            fixture.mkdir()
-            subprocess.run([str(binary), str(fixture)], check=True)
+        harness.write_text(PREFIX + source[begin:end] + SUFFIX)
+        binary = work / 'test'
+        subprocess.run(['xcrun', 'clang', '-fobjc-arc', '-fblocks', '-Wall', '-Werror',
+                        '-framework', 'Foundation', str(harness), '-o', str(binary)], check=True)
+        subprocess.run([str(binary), str(work)], check=True)
 
 if __name__ == '__main__':
     main()

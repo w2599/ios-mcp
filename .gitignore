@@ -40,3 +40,4 @@ _/*
 /third_party/paddleocr/runtime/
 /third_party/paddleocr/models/*.onnx
 __pycache__/
+/.codex-session-data
