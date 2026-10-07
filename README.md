@@ -89,6 +89,21 @@ http://设备IP:2980/health
 
 设置页跟随设备语言显示简体中文、繁体中文或英文，无需手动选择语言。
 
+也可以在设备终端或 SSH 中使用随 DEB 安装的命令行工具：
+
+```sh
+ios-mcpctl start
+ios-mcpctl stop
+ios-mcpctl restart
+ios-mcpctl status
+```
+
+工具与设置共享 `mobile` 用户的开关和端口，root SSH 也读取同一份配置。
+`start` 保持健康服务运行；`restart` 先关闭再启动 MCP 服务；命令会等待实际状态变化，超时则报错。
+启动或关闭的选择会保存，重启 SpringBoard 后仍然生效。
+`status` 同时显示实际运行状态、端口和保存的开关；退出码为运行中 `0`、已关闭 `1`、参数错误 `2`、无响应或操作失败 `3`。
+rootless 环境的工具路径为 `/var/jb/usr/bin/ios-mcpctl`；roothide 环境可使用 `$(jbroot /usr/bin/ios-mcpctl)`。
+
 <p align="center">
   <img src="screenshots/settings.jpeg" alt="iOS MCP 设置" width="300">
 </p>

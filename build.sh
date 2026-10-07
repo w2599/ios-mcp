@@ -79,6 +79,7 @@ build_subprojects() {
   fi
   (cd mcp-root && make "${scheme_env[@]}" clean && make "${scheme_env[@]}")
   (cd mcp-logreader && make "${scheme_env[@]}" clean && make "${scheme_env[@]}")
+  (cd ios-mcpctl && make "${scheme_env[@]}" clean && make "${scheme_env[@]}")
   if [[ ! -f third_party/paddleocr/runtime/ios/lib/libonnxruntime.a ]]; then
     print -u2 "PaddleOCR runtime missing: see docs/PADDLEOCR.md and run scripts/build_paddle_runtime.sh ios"
     exit 1

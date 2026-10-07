@@ -90,6 +90,21 @@ After installation, open **Settings** → **iOS MCP** on your device. Start the 
 
 The settings page follows the device's preferred language: Simplified Chinese, Traditional Chinese, or English. No manual language selection is needed.
 
+The DEB also installs a command-line tool for the device terminal or SSH:
+
+```sh
+ios-mcpctl start
+ios-mcpctl stop
+ios-mcpctl restart
+ios-mcpctl status
+```
+
+The tool shares the `mobile` user's enabled setting and port with Settings, including when run through root SSH.
+`start` leaves a healthy server running; `restart` stops and starts the MCP service. Commands wait for the actual state change and report timeouts.
+The enabled setting persists across SpringBoard restarts.
+`status` reports the actual service state, port and saved enabled setting. Exit codes are `0` for running/success, `1` for stopped (`status`), `2` for invalid arguments and `3` for an unresponsive service or failed operation.
+On rootless devices, the tool is at `/var/jb/usr/bin/ios-mcpctl`; on roothide devices, use `$(jbroot /usr/bin/ios-mcpctl)`.
+
 <p align="center">
   <img src="screenshots/settings.jpeg" alt="iOS MCP Settings" width="300">
 </p>
